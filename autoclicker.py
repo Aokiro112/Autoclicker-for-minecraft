@@ -3,7 +3,7 @@
   Minecraft Auto-Clicker  |  SKLauncher Edition
   Author  : Antigravity
   Toggle  : R
-  CPS     : 118–120 (randomized for realism)
+  CPS     : 14–16 (Pika/Vulcan sweet spot — max effective hits)
   Safety  : Clicks ONLY when Minecraft window is focused
   Fix     : High-resolution timer (1 ms) + busy-wait loop
             so clicks actually register at ~120 CPS on servers
@@ -39,8 +39,11 @@ except ImportError:
 #  CONFIGURATION
 # ═══════════════════════════════════════════════════════════════
 TOGGLE_KEY       = "r"            # hotkey to toggle ON / OFF
-CPS_MIN          = 118            # minimum clicks per second
-CPS_MAX          = 120            # maximum clicks per second
+CPS_MIN          = 14             # minimum clicks per second
+CPS_MAX          = 16             # maximum clicks per second
+# WHY 14–16? Minecraft server = 20 TPS max. Pika's Vulcan anticheat
+# cancels hits above ~17 CPS. 14–16 is the sweet spot: maximum
+# effective damage output without triggering hit-cancel.
 
 # Window title substrings that identify Minecraft / SKLauncher.
 # We check the focused window's title AND the process name.
@@ -192,7 +195,7 @@ def main():
     print("  Minecraft Auto-Clicker  |  SKLauncher Edition")
     print("=" * 60)
     print(f"  Toggle key : {TOGGLE_KEY.upper()}")
-    print(f"  CPS range  : {CPS_MIN}–{CPS_MAX}  (randomized)")
+    print(f"  CPS range  : {CPS_MIN}–{CPS_MAX}  (Pika sweet spot, max effective hits)")
     print(f"  Timer res  : 1 ms  (high-precision mode ON)")
     print(f"  Safety     : only active when Minecraft window is focused")
     print(f"  Exit       : press Ctrl+C  or close this window")
