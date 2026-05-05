@@ -3,7 +3,7 @@
   Minecraft Auto-Clicker  |  SKLauncher Edition
   Author  : Antigravity
   Toggle  : R
-  CPS     : 23–25 (randomized for realism)
+  CPS     : 68–70 (randomized for realism)
   Safety  : Clicks ONLY when Minecraft window is focused
 =============================================================
 """
@@ -36,8 +36,8 @@ except ImportError:
 #  CONFIGURATION
 # ═══════════════════════════════════════════════════════════════
 TOGGLE_KEY       = "r"           # hotkey to toggle ON / OFF
-CPS_MIN          = 23            # minimum clicks per second
-CPS_MAX          = 25            # maximum clicks per second
+CPS_MIN          = 68            # minimum clicks per second
+CPS_MAX          = 70            # maximum clicks per second
 
 # Window title substrings that identify Minecraft / SKLauncher.
 # We check the focused window's title AND the process name.
@@ -117,7 +117,7 @@ def _clicker_loop():
 
         if active and _is_minecraft_focused():
             _send_left_click()
-            # Randomized delay between clicks → 23–25 CPS
+            # Randomized delay between clicks → 68–70 CPS
             delay = 1.0 / random.uniform(CPS_MIN, CPS_MAX)
             time.sleep(delay)
         else:
