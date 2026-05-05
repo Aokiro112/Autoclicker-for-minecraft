@@ -6,7 +6,7 @@ A lightweight, safe, and PvP-optimized auto-clicker built specifically for **Min
 
 ## ⚡ Features
 
-- **F6 Toggle** — Press `F6` to turn ON/OFF anytime
+- **R Toggle** — Press `R` to turn ON/OFF anytime
 - **23–25 CPS** — Randomized clicks per second for natural, human-like behavior
 - **Minecraft-only** — Works **exclusively** inside the Minecraft window; stops instantly if you alt-tab
 - **Realistic clicks** — Uses Win32 API (`MOUSEEVENTF_LEFTDOWN/UP`) that Minecraft registers as real hardware clicks
@@ -48,8 +48,8 @@ python autoclicker.py
 |------|--------|
 | 1 | Launch Minecraft via **SKLauncher** |
 | 2 | Join a game (Bedwars, PvP, etc.) |
-| 3 | Press **`F6`** to start clicking |
-| 4 | Press **`F6`** again to stop |
+| 3 | Press **`R`** to start clicking |
+| 4 | Press **`R`** again to stop |
 | 5 | Alt-tab → clicking **auto-stops** |
 
 ---
@@ -62,7 +62,7 @@ python autoclicker.py
 | Alt-tabbed to any other app | ❌ No |
 | Minecraft minimized | ❌ No |
 | Desktop / browser focused | ❌ No |
-| F6 is ON but Minecraft not open | ❌ No |
+| R is ON but Minecraft not open | ❌ No |
 
 ---
 
@@ -71,7 +71,7 @@ python autoclicker.py
 Open `autoclicker.py` and edit the top section:
 
 ```python
-TOGGLE_KEY = "f6"     # Change hotkey (e.g. "f7", "f8")
+TOGGLE_KEY = "r"      # Change hotkey (e.g. "f6", "f7")
 CPS_MIN    = 23       # Minimum clicks per second
 CPS_MAX    = 25       # Maximum clicks per second
 ```
@@ -94,14 +94,14 @@ CPS_MAX    = 25       # Maximum clicks per second
 **Q: Kya yeh anti-cheat se pakda jaega?**
 > Clicks Win32 API se bhejta hai jo real hardware clicks jaisa hota hai. Lekin kisi bhi server pe use karo toh apni zimmedari pe — hum responsible nahi hain.
 
-**Q: F6 kaam nahi kar raha?**
+**Q: R key kaam nahi kar rahi?**
 > Script ko **Administrator** ke taur pe run karo. `install_and_run.bat` yeh automatically karta hai.
 
 **Q: CPS badhaana hai?**
 > `autoclicker.py` mein `CPS_MIN` aur `CPS_MAX` ki values change karo.
 
 **Q: Koi aur key use karni hai?**
-> `TOGGLE_KEY = "f6"` ko `"f7"` ya jo bhi chahiye woh karo.
+> `TOGGLE_KEY = "r"` ko `"f6"` ya jo bhi chahiye woh karo.
 
 ---
 

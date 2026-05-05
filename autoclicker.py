@@ -2,7 +2,7 @@
 =============================================================
   Minecraft Auto-Clicker  |  SKLauncher Edition
   Author  : Antigravity
-  Toggle  : F6
+  Toggle  : R
   CPS     : 23–25 (randomized for realism)
   Safety  : Clicks ONLY when Minecraft window is focused
 =============================================================
@@ -35,7 +35,7 @@ except ImportError:
 # ═══════════════════════════════════════════════════════════════
 #  CONFIGURATION
 # ═══════════════════════════════════════════════════════════════
-TOGGLE_KEY       = "f6"          # hotkey to toggle ON / OFF
+TOGGLE_KEY       = "r"           # hotkey to toggle ON / OFF
 CPS_MIN          = 23            # minimum clicks per second
 CPS_MAX          = 25            # maximum clicks per second
 
