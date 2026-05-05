@@ -5,6 +5,9 @@
   Toggle  : R
   CPS     : 118–120 (randomized for realism)
   Safety  : Clicks ONLY when Minecraft window is focused
+  Fix     : High-resolution timer (1 ms) + busy-wait loop
+            so clicks actually register at ~120 CPS on servers
+            like Pika (Windows default sleep = 15 ms, not 8 ms)
 =============================================================
 """
 
@@ -35,9 +38,9 @@ except ImportError:
 # ═══════════════════════════════════════════════════════════════
 #  CONFIGURATION
 # ═══════════════════════════════════════════════════════════════
-TOGGLE_KEY       = "r"           # hotkey to toggle ON / OFF
-CPS_MIN          = 118           # minimum clicks per second
-CPS_MAX          = 120           # maximum clicks per second
+TOGGLE_KEY       = "r"            # hotkey to toggle ON / OFF
+CPS_MIN          = 118            # minimum clicks per second
+CPS_MAX          = 120            # maximum clicks per second
 
 # Window title substrings that identify Minecraft / SKLauncher.
 # We check the focused window's title AND the process name.
@@ -45,9 +48,41 @@ MC_TITLE_HINTS   = ["minecraft", "sklauncher"]
 MC_PROCESS_HINTS = ["javaw.exe", "java.exe", "minecraft.exe", "sklauncher"]
 
 # ═══════════════════════════════════════════════════════════════
+#  HIGH-RESOLUTION TIMER  (Windows-specific)
+#  timeBeginPeriod(1) drops the OS scheduler tick from ~15 ms
+#  down to ~1 ms so that short sleeps actually work.
+# ═══════════════════════════════════════════════════════════════
+_winmm = ctypes.WinDLL("winmm")
+
+def _enable_hires_timer():
+    """Set Windows multimedia timer resolution to 1 ms."""
+    _winmm.timeBeginPeriod(1)
+
+def _disable_hires_timer():
+    """Restore default timer resolution on exit."""
+    _winmm.timeEndPeriod(1)
+
+def _precise_sleep(seconds: float):
+    """
+    High-precision sleep using busy-wait for the final stretch.
+    Uses time.sleep() for most of the duration to keep CPU usage
+    reasonable, then spin-waits for the last 2 ms for accuracy.
+    """
+    if seconds <= 0:
+        return
+    deadline = time.perf_counter() + seconds
+    # Sleep for most of the time (leave 2 ms for busy-wait)
+    coarse = seconds - 0.002
+    if coarse > 0:
+        time.sleep(coarse)
+    # Busy-wait for the remaining time
+    while time.perf_counter() < deadline:
+        pass
+
+# ═══════════════════════════════════════════════════════════════
 #  STATE
 # ═══════════════════════════════════════════════════════════════
-_enabled   = False          # toggled by F6
+_enabled   = False          # toggled by R
 _running   = True           # set to False to kill all threads
 _lock      = threading.Lock()
 
@@ -97,11 +132,12 @@ def _is_minecraft_focused() -> bool:
 def _send_left_click():
     """
     Fire a real WM_LBUTTONDOWN / WM_LBUTTONUP pair via Win32.
-    These are indistinguishable from a physical click at the OS level.
+    Uses busy-wait for the hold duration so it's accurate even
+    at 120 CPS where each full cycle is only ~8.3 ms.
     """
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-    # Tiny hold – mirrors actual hardware (1–3 ms)
-    time.sleep(random.uniform(0.001, 0.003))
+    # Tiny hold ~1 ms using busy-wait (mirrors real hardware)
+    _precise_sleep(random.uniform(0.0008, 0.0012))
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 
 
@@ -116,10 +152,15 @@ def _clicker_loop():
             active = _enabled
 
         if active and _is_minecraft_focused():
+            t_start = time.perf_counter()
             _send_left_click()
-            # Randomized delay between clicks → 118–120 CPS
-            delay = 1.0 / random.uniform(CPS_MIN, CPS_MAX)
-            time.sleep(delay)
+            # Target interval for 118–120 CPS
+            interval = 1.0 / random.uniform(CPS_MIN, CPS_MAX)
+            # Subtract time already spent in _send_left_click
+            elapsed = time.perf_counter() - t_start
+            remaining = interval - elapsed
+            if remaining > 0:
+                _precise_sleep(remaining)
         else:
             # Idle sleep – very cheap on CPU
             time.sleep(0.005)
@@ -144,11 +185,15 @@ def _toggle(event=None):
 def main():
     global _running
 
+    # Enable 1 ms timer resolution for accurate high-CPS clicks
+    _enable_hires_timer()
+
     print("=" * 60)
     print("  Minecraft Auto-Clicker  |  SKLauncher Edition")
     print("=" * 60)
     print(f"  Toggle key : {TOGGLE_KEY.upper()}")
     print(f"  CPS range  : {CPS_MIN}–{CPS_MAX}  (randomized)")
+    print(f"  Timer res  : 1 ms  (high-precision mode ON)")
     print(f"  Safety     : only active when Minecraft window is focused")
     print(f"  Exit       : press Ctrl+C  or close this window")
     print("=" * 60)
@@ -167,6 +212,7 @@ def main():
         pass
     finally:
         _running = False
+        _disable_hires_timer()   # restore OS timer resolution
         print("\n\n[Auto-Clicker]  Exited cleanly.")
 
 
